@@ -64,8 +64,11 @@ jobs:
 
       - name: Setup dusk/chrome
         run: |
-          chrome="$(ls -d /opt/ms-playwright/chromium-*/chrome-linux64/chrome 2>/dev/null | sort -V | tail -1)"
-          if [ -x "$chrome" ] && ! command -v google-chrome >/dev/null; then sudo ln -sf "$chrome" /usr/local/bin/google-chrome; fi
+          if ! command -v google-chrome >/dev/null; then
+            npx --yes @puppeteer/browsers install chrome@stable --path "$RUNNER_TEMP/chrome" >/dev/null
+            sudo ln -sf "$(find "$RUNNER_TEMP/chrome" -type f -name chrome -perm -u+x | head -1)" /usr/local/bin/google-chrome
+          fi
+          google-chrome --version
           vendor/bin/dusk-updater detect --no-interaction
 
       - name: Run Browser tests
