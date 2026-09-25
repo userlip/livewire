@@ -63,7 +63,10 @@ jobs:
           RUNNING_IN_CI: true
 
       - name: Setup dusk/chrome
-        run: vendor/bin/dusk-updater detect --no-interaction
+        run: |
+          chrome="$(ls -d /opt/ms-playwright/chromium-*/chrome-linux64/chrome 2>/dev/null | sort -V | tail -1)"
+          if [ -x "$chrome" ] && ! command -v google-chrome >/dev/null; then sudo ln -sf "$chrome" /usr/local/bin/google-chrome; fi
+          vendor/bin/dusk-updater detect --no-interaction
 
       - name: Run Browser tests
         run: vendor/bin/phpunit --testsuite Browser
